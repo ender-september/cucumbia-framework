@@ -1,0 +1,9 @@
+.DS_Store
+.Trashes
+.idea
+*.xcarchive/
+*.log
+cucumber/node_modules/
+screenshots/
+snippets/
+testing_report.*
