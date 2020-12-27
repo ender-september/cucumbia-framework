@@ -1,7 +1,7 @@
 # About  
-This is a framework/project template for e2e automated testing based on programming language Ruby and gherkin framework Cucumber. By default the drivers are Selenium for web and Appium for mobile automation. The CI for triggering test runs is Jenkins. Those tools can be easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
+This is a framework/project template for E2E automated testing based on programming language Ruby and gherkin framework Cucumber. By default, the drivers are Selenium for web and Appium for mobile automation. The CI for triggering test runs is Jenkins. Those tools can be easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
   
-The idea is to have an all-in-one, jump-start, out-of-the-box setup to start writing tests for automation irregardles of tools and environments. Currently, the framework supports Selenium for web abd Appium for mobile.  
+The idea is to have an all-in-one, jump-start, out-of-the-box setup to start writing tests for automation irregardles of tools and environments. Currently, the framework supports Selenium for web and Appium for mobile.  
 
 Some of the features:  
 * Template of a scenario
