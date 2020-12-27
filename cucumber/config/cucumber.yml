@@ -1,0 +1,29 @@
+### Profiles
+default: --tags @test --tags 'not @skip' APP=app_name PLATFORM_NAME=browser BROWSER_URL=http://127.0.0.1:9000
+
+# app_name
+app_abrv_browser: --tags 'not @mobile' --tags 'not @skip' PLATFORM_NAME=browser
+app_abrv_android: --tags 'not @browser' --tags 'not @skip' PLATFORM_NAME=android APP_PACKAGE_NAME=app_package_name
+app_abrv_ios: --tags 'not @browser' --tags 'not @skip' PLATFORM_NAME=ios APP_PACKAGE_NAME=app_package_name
+
+# Reports
+html_report: --format pretty --format html --out=testing_report.html
+json_report: --format pretty --format json --out=testing_report.json
+
+# Options
+
+# The following variables can be added in a profile or a Jenkins project: Configuration->Build->Command
+# PLATFORM_NAME=browser
+# BROWSER_TYPE=chrome
+# HEADLESS_BROWSER=true -> Default is false
+# IFRAME_APP = true -> if app is based on iframes, id of iframe should be set in element_path.yaml
+# SELENIUM_HUB_URL=http://some-remote-server.com:4444 -> Selenium server instance. Default is localhost.
+# BROWSER_URL=http://example.com/browser/index.html -> Client instance. Default is localhost.
+# BACKOFFICE_URL=http://example-backoffice.com/backoffice -> Default is staging
+# APP_BUILD_URL=http://example.com/app-builds/app_name.apk -> Path to the build file. It can have the value of a:
+#   1) web URL, 
+#   2) path from the Home dir '~/',
+#   3) "resources" - gets the build from the resources directory in the root directory of the testing project. 
+#   Name of the build must be the same as [APP]. This is the default option. Commiting the build is unadvisable.
+# FULL_RESET=true -> 1) writes full_reset to the caps file and 2) reruns appium setup before every scenario
+# PIN=123456
