@@ -61,7 +61,7 @@ Click the play button to build the project. If there is an error mentioning Rout
 
 # Running tests
   
-Navigate to `e2e-automated-testing/cucumber`  
+Navigate to `cucumber` directory  
   
 Test execution profiles (defined in config/cucumber.yml):  
 
@@ -80,7 +80,7 @@ Test execution profiles (defined in config/cucumber.yml):
 @browser - browser specific tests.  
 @long - scenarios not limited to a 10 minute execution time.  
 @smoke - check that the critical functionalities are working fine. Executed before detailed functional or regression tests are executed.  
-@team-missions, @lobby-views, etc. - feature tags 
+@login-feature, @shop-feature, etc. - feature tags 
 @unstable - scenarios that sometimes fail due to an uncontrolled factor
 
 ### Options
@@ -100,7 +100,7 @@ https://docs.cucumber.io/cucumber/api/
 ### Structure of a feature file
 * **Feature** − Name of the feature under test.  
 * **Description** (optional) − Describe the feature under test.
-* **Background** (optional) - Steps to run before each scenario in the feature file. Most commonly used to specify a user for logging in after which the Lobby page is displayed.
+* **Background** (optional) - Steps to run before each scenario in the feature file. Most commonly used to log in a specific user.
 * **Scenario** − Name of the test scenario.
 * **Given** − Prerequisite before the test steps get executed.
 * **When** − Specific condition which should match in order to execute the next step.
@@ -110,4 +110,4 @@ https://docs.cucumber.io/cucumber/api/
 ### Checkout vocabulary.md for vocabulary and conventions when forming expressions for scenario steps
 
 # Jenkins
-When the test result is in plain text, go to Manage Jenkins->Script Console and paste the following `System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; style-src 'unsafe-inline' *;")`, than click on Run.
+When the test results are in plain text, go to Manage Jenkins->Script Console and paste the following `System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; style-src 'unsafe-inline' *;")`, than click on Run.

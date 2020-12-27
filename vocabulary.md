@@ -4,7 +4,6 @@
 | I | log in | as a [user](#users) |  
 | I | click on | the [element](#elements) |  
 | I | type [text](#text) in | the [element](#elements) |  
-| I | wait for | the [element](#elements) to download|  
 | I | wait for | X seconds|  
 | Validations: |  
 | I | see / do not see | the [page](#pages) / [element](#elements) |  
@@ -14,17 +13,8 @@
 # Users  
 * guest user  
 * registered user  
-* registered vip user  
 * new user  
-* new vip user  
-* public team admin  
-* private team admin  
-  
-Optional:  
-[User](#users) with/without credits  
-[User](#users) with level X  
-[User](#users) with X credits and with level X  
-  
+    
 # Pages
 * welcome page  
 * lobby page  
