@@ -1,8 +1,8 @@
 source 'https://www.rubygems.org'
 
-gem 'appium_lib', '~> 10.2'
+gem 'appium_lib', '~> 11.0'
 gem 'cucumber', '~> 3.1', '>= 3.1.2'
-gem 'google-api-client', '~> 0.19'
+gem 'google-api-client'
 gem 'pry'
 gem 'rest-client', '~> 2.0.2'
 gem 'rspec-expectations', '~> 3.9.0'
