@@ -1,10 +1,11 @@
 # About  
-This is a framework/project template for E2E automated testing based on programming language Ruby and gherkin framework Cucumber. By default, the drivers are Selenium for web and Appium for mobile automation. The CI for triggering test runs is Jenkins. Those tools can be easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
+This is a framework/project template for E2E automated testing based on Ruby and Cucumber. The drivers are Selenium for web and Appium for mobile automation. Those tools can easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
   
-The idea is to have an all-in-one, jump-start, out-of-the-box setup to start writing tests for automation irregardles of tools and environments. Currently, the framework supports Selenium for web and Appium for mobile.  
+The idea is to have an all-in-one, jump-start, out-of-the-box setup to start writing tests for automation irregardles of tools and environments.
 
 Some of the features:  
 * Template of a scenario
+* Structured sintax guide - (see vocabulary.md)
 * User account data structure
 * JavaScript calls for web-based apps
 * Commands on the OS level
@@ -13,7 +14,7 @@ Some of the features:
 * Easily configurable setup with profiles
 * Screenshots for every step or on point of failure (saved in `screenshots` directory)  
 * HTML and JSON reports with screenshots
-* Jenkins CI setup
+* Script to trigger a test run e.g. with Jenkins CI
 * API testing (coming soon)
 
 # Code setup  
@@ -108,6 +109,3 @@ https://docs.cucumber.io/cucumber/api/
 * **And** - Additional steps that can be used with any other keywords like **Given**, **When** and **Then**. 
 
 ### Checkout vocabulary.md for vocabulary and conventions when forming expressions for scenario steps
-
-# Jenkins
-When the test results are in plain text, go to Manage Jenkins->Script Console and paste the following `System.setProperty("hudson.model.DirectoryBrowserSupport.CSP", "sandbox allow-scripts allow-popups allow-popups-to-escape-sandbox; style-src 'unsafe-inline' *;")`, than click on Run.
