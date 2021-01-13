@@ -1,10 +1,6 @@
 # About  
-<<<<<<< HEAD
 This is a framework/project template for E2E automated testing based on Ruby and Cucumber. The drivers are Selenium for web and Appium for mobile automation. Those tools can easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
-=======
-This is a framework/project template for E2E automated testing based on Ruby and Cucumber. The drivers are Selenium for web and Appium for mobile automation. Those tools can be easily (sort of) be replaced with other tools without changing the overall written logic of tests.  
->>>>>>> develop
-  
+
 The idea is to have an all-in-one, jump-start, out-of-the-box setup to start writing tests for automation irregardles of tools and environments.
 
 Some of the features:  
