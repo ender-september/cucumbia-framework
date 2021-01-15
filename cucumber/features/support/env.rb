@@ -21,7 +21,12 @@ class MyEnv
     return true if TRUTHY_VALUES.include?(ENV[value].to_s.downcase)
 
     raise "Invalid value '#{value}' for boolean casting!"
-  end  
+  end
+
+  def self.appium_config_file
+    File.join(File.dirname(__FILE__), "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
+  end
+
 end
 
 # Android specific configurations
@@ -30,7 +35,7 @@ class AndroidWorld
 
   def caps
     puts 'Running on Android...'
-    Appium.load_appium_txt file: File.join(File.dirname(__FILE__), "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
+    Appium.load_appium_txt file: MyEnv.appium_config_file
   end
 
   def install_app
@@ -39,14 +44,14 @@ class AndroidWorld
   end
 
   def app_bundle
-    File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
+    File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nappPackage=\"#{ENV['APP_PACKAGE_NAME']}\""
       f.write "\nappActivity=\"#{ENV['APP_PACKAGE_NAME']}.MainActivity\""
     end
   end
 
   def unlock_device(unlock_type, unlock_key)
-    File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
+    File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nunlockType=\"#{unlock_type}\""
       f.write "\nunlockKey=\"#{unlock_key}\""
     end
@@ -59,7 +64,7 @@ class IosWorld
 
   def caps
     puts 'Running on iOS...'
-    Appium.load_appium_txt file: File.join(File.dirname(__FILE__), "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
+    Appium.load_appium_txt file: MyEnv.appium_config_file
   end
 
   def install_app
@@ -86,14 +91,14 @@ class IosWorld
 
     $logger.info("Device name: #{device_name}")
     $logger.info("Device version: #{device_version}")
-    File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
+    File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\ndeviceName=\"#{device_name}\""
       f.write "\nplatformVersion=\"#{device_version}\""
     end
   end
 
   def app_bundle
-    File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
+    File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nbundleId=\"#{ENV['APP_PACKAGE_NAME']}\""
     end
   end

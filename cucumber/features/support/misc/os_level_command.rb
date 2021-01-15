@@ -54,7 +54,7 @@ module OsLevelCommand
 
   def add_install_app_config
     uninstall_the_app
-    File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
+    File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\napp=\"#{@app_build_path}\""
       f.write "\nfullReset=#{ENV['FULL_RESET']}" unless ENV['FULL_RESET'].nil?
     end
