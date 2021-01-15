@@ -29,7 +29,7 @@ class MyEnv
 
   def self.append_appium_config_file(conf, value)
     conf = "#{conf}="
-    return if File.foreach(MyEnv.appium_config_file).grep(conf).any?
+    return if File.foreach(MyEnv.appium_config_file).grep(/#{conf}/).any?
 
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\n#{conf}\"#{value}\""
