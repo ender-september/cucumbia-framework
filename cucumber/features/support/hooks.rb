@@ -50,20 +50,10 @@ Before do
         end
       end
     end
-
     enter_webview
   end
 
   self.flow = Flow.new($driver)
-  $logger.info('Flow class is initialized')
-
-  # In case the user is logged in on the device at test start
-  # due to storage data not being previously cleared
-  if ios?
-    sleep(3)
-    logout_with_local_storage_data
-  end
-
   $logger.info('Finished: General Before block...')
 end
 
