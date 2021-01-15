@@ -10,6 +10,7 @@ platformName="iOS"
 startIWDP=true
 xcodeOrgID="your-OrdID"
 xcodeSigningId="iPhone Developer"
+udid="auto"
 updatedWDABundleId="io.appium.WebDriverAgentRunner"
 newCommandTimeout=0
 webkitResponseTimeout=44000

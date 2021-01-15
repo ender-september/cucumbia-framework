@@ -44,6 +44,8 @@ class AndroidWorld
   end
 
   def app_bundle
+    return if File.foreach(MyEnv.appium_config_file).grep(/appPackage/).any?
+
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nappPackage=\"#{ENV['APP_PACKAGE_NAME']}\""
       f.write "\nappActivity=\"#{ENV['APP_PACKAGE_NAME']}.MainActivity\""
@@ -51,6 +53,8 @@ class AndroidWorld
   end
 
   def unlock_device(unlock_type, unlock_key)
+    return if File.foreach(MyEnv.appium_config_file).grep(/unlockType/).any?
+
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nunlockType=\"#{unlock_type}\""
       f.write "\nunlockKey=\"#{unlock_key}\""
@@ -77,7 +81,6 @@ class IosWorld
       device_name = 'iPhone Simulator'
       device_version = ENV['DEVICE_VERSION'] || '14.3'
     else
-      udid = "\nudid=\"auto\""
       device_name = `ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', ''
       
       if device_name == nil
@@ -91,6 +94,9 @@ class IosWorld
 
     $logger.info("Device name: #{device_name}")
     $logger.info("Device version: #{device_version}")
+    
+    return if File.foreach(MyEnv.appium_config_file).grep(/deviceName/).any?
+
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\ndeviceName=\"#{device_name}\""
       f.write "\nplatformVersion=\"#{device_version}\""
@@ -98,6 +104,8 @@ class IosWorld
   end
 
   def app_bundle
+    return if File.foreach(MyEnv.appium_config_file).grep(/bundleId/).any?
+    
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\nbundleId=\"#{ENV['APP_PACKAGE_NAME']}\""
     end
