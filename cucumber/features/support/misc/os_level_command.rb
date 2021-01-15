@@ -13,8 +13,8 @@ module OsLevelCommand
       return @app_build_path
     end
 
-    # If the app build is a part of the testing project in a dir called "resources"
-    uri_path = File.join(ENV['HOME'], uri_path.to_s) if uri_path == 'resources'
+    # Start from HOME unless the app build is in the testing project in a dir called "resources"
+    uri_path = File.join(ENV['HOME'], uri_path.to_s) unless uri_path == 'resources'
 
     extension = ENV['PLATFORM_NAME'] == 'ios' ? 'ipa' : 'apk'
     extension = 'app' if MyEnv.true?('IOS_SIMULATOR')
