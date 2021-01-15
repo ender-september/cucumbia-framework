@@ -17,6 +17,8 @@ module OsLevelCommand
     uri_path = File.join(ENV['HOME'], uri_path.to_s) if uri_path == 'resources'
 
     extension = ENV['PLATFORM_NAME'] == 'ios' ? 'ipa' : 'apk'
+    extension = 'app' if ENV['IOS_SIMULATOR'] == true
+
     app_path = File.join(File.expand_path('..', Dir.pwd), "#{uri_path}/#{ENV['APP']}")
     @app_build_path = "#{app_path}.#{extension}"
   end

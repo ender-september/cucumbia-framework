@@ -54,9 +54,14 @@ class IosWorld
   end
 
   def ios_device_specific_config
-    device_name = (`ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', '').strip
-    device_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
-    device_version = /^\d+\.[1-9]\d*/.match(device_version)
+    if ENV['IOS_SIMULATOR'] == true
+      device_name = 'iPhone Simulator'
+      device_version = ENV['DEVICE_VERSION'] || '12'
+    else
+      device_name = (`ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', '').strip
+      device_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
+      device_version = /^\d+\.[1-9]\d*/.match(device_version)
+    end
     $logger.info("Device name: #{device_name}")
     $logger.info("Device version: #{device_version}")
     File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|

@@ -1,5 +1,5 @@
 ### Profiles
-default: --tags @test --tags 'not @skip' APP=app_name PLATFORM_NAME=browser BROWSER_URL=http://127.0.0.1:9000
+default: --tags @test --tags 'not @skip' PLATFORM_NAME=browser BROWSER_URL=http://127.0.0.1:9000
 
 # app_name
 app_abrv_browser: --tags 'not @mobile' --tags 'not @skip' PLATFORM_NAME=browser
@@ -24,6 +24,6 @@ json_report: --format pretty --format json --out=testing_report.json
 #   1) web URL, 
 #   2) path from the Home dir '~/',
 #   3) "resources" - gets the build from the resources directory in the root directory of the testing project. 
-#   Name of the build must be the same as [APP]. This is the default option. Commiting the build is unadvisable.
+#   Commiting the build is unadvisable.
 # FULL_RESET=true -> 1) writes full_reset to the caps file and 2) reruns appium setup before every scenario
 # PIN=123456
