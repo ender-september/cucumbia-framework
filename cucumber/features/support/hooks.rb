@@ -52,7 +52,6 @@ Before do
       end
     end
 
-    Selenium::WebDriver::Wait.new(timeout: 20).until { $driver.available_contexts.count > 1 }
     enter_webview
   end
 

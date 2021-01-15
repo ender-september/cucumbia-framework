@@ -71,10 +71,15 @@ module Helper
     ENV['PLATFORM_NAME'] == 'ios'
   end
 
+  def native_app?
+    MyEnv.true?('NATIVE_APP')
+  end
+
   # There could be a case that there are more than one webview. Then switch by it's name
   def enter_webview
     return if browser?
-
+    return if native_app?
+    
     wait_for { $driver.available_contexts.count > 1 }
     begin
       try ||= 1
@@ -91,6 +96,7 @@ module Helper
 
   def exit_webview
     return if browser?
+    return if native_app?
 
     wait_for { $driver.available_contexts.count > 1 }
     begin
@@ -121,6 +127,8 @@ module Helper
   end
 
   def take_screenshot(filename)
+    return if $driver == nil
+
     file_path = File.join(Dir.pwd, "screenshots/#{filename}.png")
     if browser?
       $driver.save_screenshot(file_path)

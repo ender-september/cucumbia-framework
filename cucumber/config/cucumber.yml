@@ -16,6 +16,7 @@ json_report: --format pretty --format json --out=testing_report.json
 # PLATFORM_NAME=browser
 # BROWSER_TYPE=chrome
 # HEADLESS_BROWSER=true -> Default is false
+# NATIVE_APP=true -> AUT is a native app
 # IOS_SIMULATOR=true -> Run with a simulator
 # DEVICE_VERSION -> Can be defined when using a simulator. Default is 14.3
 # IFRAME_APP = true -> if app is based on iframes, id of iframe should be set in element_path.yaml
