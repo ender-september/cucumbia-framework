@@ -10,6 +10,20 @@ require 'tracer'
 require 'base64'
 Dir[File.join(__dir__, 'misc', '*.rb')].sort.each { |file| require file }
 
+class MyEnv
+  
+  TRUTHY_VALUES = %w(t true yes y 1).freeze
+  FALSEY_VALUES = %w(f false n no 0).freeze
+
+  def self.true?(value)
+    return false if ENV[value].nil?
+    return false if FALSEY_VALUES.include?(ENV[value].to_s.downcase)
+    return true if TRUTHY_VALUES.include?(ENV[value].to_s.downcase)
+
+    raise "Invalid value '#{value}' for boolean casting!"
+  end  
+end
+
 # Android specific configurations
 class AndroidWorld
   extend OsLevelCommand
@@ -54,14 +68,22 @@ class IosWorld
   end
 
   def ios_device_specific_config
-    if ENV['IOS_SIMULATOR'] == true
+    if MyEnv.true?('IOS_SIMULATOR')
       device_name = 'iPhone Simulator'
-      device_version = ENV['DEVICE_VERSION'] || '12'
+      device_version = ENV['DEVICE_VERSION'] || '14.3'
     else
-      device_name = (`ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', '').strip
+      udid = "\nudid=\"auto\""
+      device_name = `ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', ''
+      
+      if device_name == nil
+        raise 'iOS device not found. Check connection... Tip: You can use the command: ideviceinfo'
+      end
+      
+      device_name = device_name.strip
       device_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
       device_version = /^\d+\.[1-9]\d*/.match(device_version)
     end
+
     $logger.info("Device name: #{device_name}")
     $logger.info("Device version: #{device_version}")
     File.open(File.join(Dir.pwd, "features/support/appium_#{ENV['PLATFORM_NAME']}_caps.txt"), 'a') do |f|
@@ -84,7 +106,7 @@ class ChromeWorld
       platform: :MAC
     }
 
-    if ENV['HEADLESS_BROWSER'] == true
+    if MyEnv.true?('HEADLESS_BROWSER')
       capabilities_config[:chromeOptions] = { 'args' => ['headless'] }
     end
 

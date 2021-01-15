@@ -20,18 +20,22 @@ Before do
       $driver.manage.window.maximize
     end
     try_times(2, method(:open_url), ENV["BROWSER_URL"])
+  
   else
     # Mobile setup
     start_mobile_setup = true if start_mobile_setup.nil?
-    if start_mobile_setup == true
-      Appium::Driver.new caps
-      Appium.promote_appium_methods self.class
+    if start_mobile_setup == true      
       app_bundle
       ios_device_specific_config if ENV['PLATFORM_NAME'] == 'ios'
       install_app unless ENV['APP_BUILD_URL'].nil?
+      
+      Appium::Driver.new caps
+      Appium.promote_appium_methods self.class
+      
       unlock_device('pin', ENV['PIN']) unless ENV['PIN'].nil?
-      start_mobile_setup = false unless ENV['FULL_RESET'] == true
+      start_mobile_setup = false unless MyEnv.true?('FULL_RESET')
     end
+
     $driver.start_driver
 
     # If iOS spams with updates and other notification, try to close the popups

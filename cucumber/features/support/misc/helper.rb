@@ -1,5 +1,10 @@
 # Helper methods
 module Helper
+
+  def true?(var)
+    var.to_s.downcase == "true"
+  end
+
   # explicit wait
   def wait_for
     Selenium::WebDriver::Wait.new(timeout: 10).until { yield }
@@ -109,7 +114,7 @@ module Helper
   end
 
   def enter_app_iframe
-    return unless ENV['IFRAME_APP'] == true
+    return unless MyEnv.true?('IFRAME_APP')
     $driver.switch_to.default_content
     wait_for { $driver.find_element(:class, $element_path['app-iframe']).displayed? }
     $driver.switch_to.frame $driver.find_element(:class, $element_path['app-iframe'])
