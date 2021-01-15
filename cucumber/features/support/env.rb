@@ -11,7 +11,7 @@ require 'base64'
 Dir[File.join(__dir__, 'misc', '*.rb')].sort.each { |file| require file }
 
 class MyEnv
-  
+
   TRUTHY_VALUES = %w(t true yes y 1).freeze
   FALSEY_VALUES = %w(f false n no 0).freeze
 
@@ -27,6 +27,14 @@ class MyEnv
     File.join(File.dirname(__FILE__), "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
   end
 
+  def self.append_appium_config_file(conf, value)
+    conf = "#{conf}="
+    return if File.foreach(MyEnv.appium_config_file).grep(conf).any?
+
+    File.open(MyEnv.appium_config_file, 'a') do |f|
+      f.write "\n#{conf}\"#{value}\""
+    end
+  end
 end
 
 # Android specific configurations
@@ -44,21 +52,13 @@ class AndroidWorld
   end
 
   def app_bundle
-    return if File.foreach(MyEnv.appium_config_file).grep(/appPackage/).any?
-
-    File.open(MyEnv.appium_config_file, 'a') do |f|
-      f.write "\nappPackage=\"#{ENV['APP_PACKAGE_NAME']}\""
-      f.write "\nappActivity=\"#{ENV['APP_PACKAGE_NAME']}.MainActivity\""
-    end
+    MyEnv.append_appium_config_file('appPackage', ENV['APP_PACKAGE_NAME'])
+    MyEnv.append_appium_config_file('appActivity', "#{ENV['APP_PACKAGE_NAME']}.MainActivity")
   end
 
   def unlock_device(unlock_type, unlock_key)
-    return if File.foreach(MyEnv.appium_config_file).grep(/unlockType/).any?
-
-    File.open(MyEnv.appium_config_file, 'a') do |f|
-      f.write "\nunlockType=\"#{unlock_type}\""
-      f.write "\nunlockKey=\"#{unlock_key}\""
-    end
+    MyEnv.append_appium_config_file('unlockType', unlock_type)
+    MyEnv.append_appium_config_file('unlockKey', unlock_key)
   end
 end
 
@@ -79,7 +79,7 @@ class IosWorld
   def ios_device_specific_config
     if MyEnv.true?('IOS_SIMULATOR')
       device_name = 'iPhone Simulator'
-      device_version = ENV['DEVICE_VERSION'] || '14.3'
+      platform_version = ENV['PLATFORM_VERSION'] || '14.3'
     else
       device_name = `ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', ''
       
@@ -88,27 +88,19 @@ class IosWorld
       end
       
       device_name = device_name.strip
-      device_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
-      device_version = /^\d+\.[1-9]\d*/.match(device_version)
+      platform_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
+      platform_version = /^\d+\.[1-9]\d*/.match(platform_version)
     end
 
     $logger.info("Device name: #{device_name}")
-    $logger.info("Device version: #{device_version}")
+    $logger.info("Platform version: #{platform_version}")
     
-    return if File.foreach(MyEnv.appium_config_file).grep(/deviceName/).any?
-
-    File.open(MyEnv.appium_config_file, 'a') do |f|
-      f.write "\ndeviceName=\"#{device_name}\""
-      f.write "\nplatformVersion=\"#{device_version}\""
-    end
+    MyEnv.append_appium_config_file('deviceName', device_name)
+    MyEnv.append_appium_config_file('platformVersion', platform_version)
   end
 
   def app_bundle
-    return if File.foreach(MyEnv.appium_config_file).grep(/bundleId/).any?
-    
-    File.open(MyEnv.appium_config_file, 'a') do |f|
-      f.write "\nbundleId=\"#{ENV['APP_PACKAGE_NAME']}\""
-    end
+    MyEnv.append_appium_config_file('bundleId', ENV['APP_PACKAGE_NAME'])
   end
 end
 

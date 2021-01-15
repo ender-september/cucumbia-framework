@@ -54,12 +54,8 @@ module OsLevelCommand
 
   def add_install_app_config
     uninstall_the_app    
-    return if File.foreach(MyEnv.appium_config_file).grep(/app/).any?
-
-    File.open(MyEnv.appium_config_file, 'a') do |f|
-      f.write "\napp=\"#{@app_build_path}\""
-      f.write "\nfullReset=#{ENV['FULL_RESET']}" unless ENV['FULL_RESET'].nil?
-    end
+    MyEnv.append_appium_config_file('app', @app_build_path)
+    MyEnv.append_appium_config_file('fullReset', ENV['FULL_RESET']) unless ENV['FULL_RESET'].nil?
   end
 
   def launch_app

@@ -28,12 +28,11 @@ Before do
       app_bundle
       ios_device_specific_config if ENV['PLATFORM_NAME'] == 'ios'
       install_app unless ENV['APP_BUILD_URL'].nil?
+      unlock_device('pin', ENV['PIN']) unless ENV['PIN'].nil?
+      start_mobile_setup = false unless MyEnv.true?('FULL_RESET')
       
       Appium::Driver.new caps
       Appium.promote_appium_methods self.class
-      
-      unlock_device('pin', ENV['PIN']) unless ENV['PIN'].nil?
-      start_mobile_setup = false unless MyEnv.true?('FULL_RESET')
     end
 
     $driver.start_driver

@@ -18,7 +18,7 @@ json_report: --format pretty --format json --out=testing_report.json
 # HEADLESS_BROWSER=true -> Default is false
 # NATIVE_APP=true -> AUT is a native app
 # IOS_SIMULATOR=true -> Run with a simulator
-# DEVICE_VERSION -> Can be defined when using a simulator. Default is 14.3
+# PLATFORM_VERSION -> Can be defined when using a simulator. Default is 14.3
 # IFRAME_APP = true -> if app is based on iframes, id of iframe should be set in element_path.yaml
 # SELENIUM_HUB_URL=http://some-remote-server.com:4444 -> Selenium server instance. Default is localhost.
 # BROWSER_URL=http://example.com/browser/index.html -> Client instance. Default is localhost.
