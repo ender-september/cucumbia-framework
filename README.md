@@ -52,8 +52,9 @@ Open appium_root_directory/node_modules/appium-webdriveragent/WebDriverAgent.xco
 Check "Automatically manage signing" and select the Team.
 In Build Settings tab find Product Bundle Identifier and instead of `com.facebook.WebDriverAgent(...)` put `io.appium.WebDriverAgent(...)`. Do these both for WebDriverAgentLib and WebDriverAgentRunner.  
 Steps in detail: https://github.com/appium/appium-xcuitest-driver/blob/master/docs/real-device-config.md#basic-manual-configuration  
-Click the play button to build the project. If there is an error mentioning RoutingHTTPServer, run `bash ./Scripts/bootstrap.sh -d` from the directory of WebDriverAgent.xcodeproj. Ignore other errors as they should disapear after a test run.
-
+Click the play button to build the project. If there is an error mentioning RoutingHTTPServer, run `bash ./Scripts/bootstrap.sh -d` from the directory of WebDriverAgent.xcodeproj. Ignore other errors as they should disapear after a test run.  
+Inside the `appium-webdriveragent` directory run `mkdir -p Resources/WebDriverAgent.bundle`  
+  
 ### Start an Appium server instance for Android
 ``./node_modules/.bin/appium --port 4724 --bootstrap-port 63324 --session-override --chromedriver-executable=`pwd`/chromedriver``  
 
