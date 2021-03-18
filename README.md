@@ -46,8 +46,7 @@ For specific version of `chromedriver`, put the file in the appium root director
 3. `brew install carthage`  
 4. `brew install ios-webkit-debug-proxy`
 4. `npm install -g ios-deploy`  
-5. Optional: `gem install xcpretty`
-6. Configure the WebDriverAgent:  
+5. Configure the WebDriverAgent:  
 Open appium_root_directory/node_modules/appium-webdriveragent/WebDriverAgent.xcodeproj
 Check "Automatically manage signing" and select the Team.
 In Build Settings tab find Product Bundle Identifier and instead of `com.facebook.WebDriverAgent(...)` put `io.appium.WebDriverAgent(...)`. Do these both for WebDriverAgentLib and WebDriverAgentRunner.  
@@ -86,8 +85,8 @@ Test execution profiles (defined in config/cucumber.yml):
 @unstable - scenarios that sometimes fail due to an uncontrolled factor
 
 ### Options
-Specify the browser:  
-`BROWSER=[firefox, safari, chrome(default)]`  
+Path from home dir to a yaml file that is loaded into the $secrets variable. Default is `~/testing-secrets.yaml`  
+`SECRETS_PATH=<path to yaml file>`  
   
 Stop executing the feature file if the scenario failures amount to a defined number (useful for CI and fast feedback):  
 `FAILSTOP=number`  

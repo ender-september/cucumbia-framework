@@ -9,7 +9,7 @@ class MailtrapRequester
 
   def email_link(email_address)
     email = email_content(email_address)
-    "https:#{/https:(.*?)\"/.match(email.body)[1]}"
+    "https:#{/https:(.*?)"/.match(email.body)[1]}"
   end
 
   def delete_email(message_id)
@@ -18,7 +18,7 @@ class MailtrapRequester
 
   def latest_email_id
     res_all_emails = send_request('get', '')
-    /\"id\":(.*?),/.match(res_all_emails.body)[1]
+    /"id":(.*?),/.match(res_all_emails.body)[1]
   end
 
   def send_request(method, uri_path)

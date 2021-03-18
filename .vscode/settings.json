@@ -1,3 +1,6 @@
 {
+  "window.zoomLevel": 1,
+  "ruby.codeCompletion": "rcodetools",
+  "ruby.format": "rubocop", // use rubocop for formatting
   "editor.formatOnSave": true
 }

@@ -24,36 +24,24 @@ module OsLevelCommand
   end
 
   def install_the_app
-    if ENV['PLATFORM_NAME'] == 'android'
-      system("adb install #{@app_build_path}")
-    end
-    if ENV['PLATFORM_NAME'] == 'ios'
-      system("ideviceinstaller -i #{@app_build_path}")
-    end
+    system("adb install #{@app_build_path}") if ENV['PLATFORM_NAME'] == 'android'
+    system("ideviceinstaller -i #{@app_build_path}") if ENV['PLATFORM_NAME'] == 'ios'
   end
 
   def app_installed?
-    if ENV['PLATFORM_NAME'] == 'android'
-      `adb shell pm list packages`.include?("#{ENV['APP_PACKAGE_NAME']}")
-    end
-    if ENV['PLATFORM_NAME'] == 'ios'
-      `ideviceinstaller -l`.include?("#{ENV['APP_PACKAGE_NAME']}")
-    end
+    `adb shell pm list packages`.include?((ENV['APP_PACKAGE_NAME']).to_s) if ENV['PLATFORM_NAME'] == 'android'
+    `ideviceinstaller -l`.include?((ENV['APP_PACKAGE_NAME']).to_s) if ENV['PLATFORM_NAME'] == 'ios'
   end
 
   def uninstall_the_app
     return true unless app_installed?
 
-    if ENV['PLATFORM_NAME'] == 'android'
-      system("adb uninstall #{ENV['APP_PACKAGE_NAME']}")
-    end
-    if ENV['PLATFORM_NAME'] == 'ios'
-      system("ideviceinstaller -U #{ENV['APP_PACKAGE_NAME']}")
-    end
+    system("adb uninstall #{ENV['APP_PACKAGE_NAME']}") if ENV['PLATFORM_NAME'] == 'android'
+    system("ideviceinstaller -U #{ENV['APP_PACKAGE_NAME']}") if ENV['PLATFORM_NAME'] == 'ios'
   end
 
   def add_install_app_config
-    uninstall_the_app    
+    uninstall_the_app
     MyEnv.append_appium_config_file('app', @app_build_path)
     MyEnv.append_appium_config_file('fullReset', ENV['FULL_RESET']) unless ENV['FULL_RESET'].nil?
   end
@@ -63,7 +51,7 @@ module OsLevelCommand
   end
 
   def quit_app
-    $driver.terminate_app("#{config[app_package_name]}")
+    $driver.terminate_app(ENV['APP_PACKAGE_NAME'])
   end
 
   def restart_app

@@ -16,21 +16,19 @@ Before do
     $driver.manage.delete_all_cookies
 
     # ChromeDriver has bug with maximizing
-    unless ENV['BROWSER_TYPE'].nil? || ENV['BROWSER_TYPE'] == 'chrome'
-      $driver.manage.window.maximize
-    end
-    try_times(2, method(:open_url), ENV["BROWSER_URL"])
-  
+    $driver.manage.window.maximize unless ENV['BROWSER_TYPE'].nil? || ENV['BROWSER_TYPE'] == 'chrome'
+    try_times(2, method(:open_url), ENV['BROWSER_URL'])
+
   else
     # Mobile setup
     start_mobile_setup = true if start_mobile_setup.nil?
-    if start_mobile_setup == true      
+    if start_mobile_setup == true
       app_bundle
       ios_device_specific_config if ENV['PLATFORM_NAME'] == 'ios'
       install_app unless ENV['APP_BUILD_URL'].nil?
       unlock_device('pin', ENV['PIN']) unless ENV['PIN'].nil?
       start_mobile_setup = false unless MyEnv.true?('FULL_RESET')
-      
+
       Appium::Driver.new caps
       Appium.promote_appium_methods self.class
     end
@@ -42,12 +40,10 @@ Before do
       close_popup_buttons = ['Cancel', 'Close', 'Later', 'Don\'t Allow', 'Remind Me Later']
 
       close_popup_buttons.each do |x|
-        begin
-          $driver.find_element(:id, x).click
-        rescue StandardError
-        ensure
-          next
-        end
+        $driver.find_element(:id, x).click
+      rescue StandardError
+      ensure
+        next
       end
     end
     enter_webview
@@ -66,11 +62,7 @@ After do |scenario|
       try_close_ios_native_popups if ios?
       quit_driver
     end
-    unless ENV['FAILSTOP'].nil?
-      if scenario_fails_number >= ENV['FAILSTOP'].to_i
-        Cucumber.wants_to_quit = true
-      end
-    end
+    Cucumber.wants_to_quit = true if !ENV['FAILSTOP'].nil? && (scenario_fails_number >= ENV['FAILSTOP'].to_i)
   else
     quit_driver
   end
@@ -80,21 +72,20 @@ end
 Around('not @long', 'not @test') do |scenario, block|
   # Scenario stops with timeout execption if execution takes more than stated seconds.
   # Timeout exception by default does not trigger scenario.fail and does not finish with executing the After hook
-  begin
-    if ios?
+
+  if ios?
+    block.call
+  else
+    Timeout.timeout(600) do
       block.call
-    else
-      Timeout.timeout(600) do
-        block.call
-      end
     end
-  rescue Selenium::WebDriver::Error::TimeoutError => e
-    unless $driver.nil?
-      fail_shot_taken = take_fail_shot unless fail_shot_taken == true
-      quit_driver
-    end
-    scenario.fail(e)
   end
+rescue Selenium::WebDriver::Error::TimeoutError => e
+  unless $driver.nil?
+    fail_shot_taken = take_fail_shot unless fail_shot_taken == true
+    quit_driver
+  end
+  scenario.fail(e)
 end
 
 AfterStep do
@@ -105,7 +96,7 @@ Before('not @test', '@backoffice') do
   $logger.info 'Started: Before backoffice setup...'
 
   try_times(2, method(:open_url), ENV['BACKOFFICE_URL'])
-    
+
   self.backoffice_flow = BackofficePages.new($driver)
   backoffice_pages.log_in
 

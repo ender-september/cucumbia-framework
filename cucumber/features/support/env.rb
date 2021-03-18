@@ -168,7 +168,9 @@ $element_path = ElementRegistry.new(element_path_file).element_path_file_hashmap
 # Load property files
 $users = YAML.load_file File.join(Dir.pwd, 'features/support/misc/users.yaml')
 
-if File.exist?(File.join('~/', 'secret.yaml'))
+unless ENV['SECRETS_PATH'].nil?
+  $secrets = YAML.load_file File.join('~/', ENV['SECRETS_PATH'])
+elsif File.exist?(File.join('~/', 'testing-secrets.yaml'))
   $secrets = YAML.load_file File.join('~/', 'testing-secrets.yaml')
 end
 

@@ -1,8 +1,7 @@
 # Helper methods
 module Helper
-
   def true?(var)
-    var.to_s.downcase == "true"
+    var.to_s.downcase == 'true'
   end
 
   # explicit wait
@@ -41,7 +40,7 @@ module Helper
 
   def current_page?(find_by, path)
     el = $driver.find_elements(find_by.to_sym, path)
-    
+
     return false if el.empty?
 
     true
@@ -79,7 +78,7 @@ module Helper
   def enter_webview
     return if browser?
     return if native_app?
-    
+
     wait_for { $driver.available_contexts.count > 1 }
     begin
       try ||= 1
@@ -121,13 +120,14 @@ module Helper
 
   def enter_app_iframe
     return unless MyEnv.true?('IFRAME_APP')
+
     $driver.switch_to.default_content
     wait_for { $driver.find_element(:class, $element_path['app-iframe']).displayed? }
     $driver.switch_to.frame $driver.find_element(:class, $element_path['app-iframe'])
   end
 
   def take_screenshot(filename)
-    return if $driver == nil
+    return if $driver.nil?
 
     file_path = File.join(Dir.pwd, "screenshots/#{filename}.png")
     if browser?
@@ -285,34 +285,30 @@ module Helper
     $logger.info(input_text)
     letter_keypad = true
     input_text.split('').each do |char|
-      begin
-        try ||= 1
-        # For letters
-        if letter?(char)
-          if letter_keypad == false
-            $driver.find_element(:accessibility_id, 'more').click
-            letter_keypad = true
-          end
-          if upcase?(char)
-            $driver.find_element(:accessibility_id, 'shift').click
-          end
-          $driver.find_element(:accessibility_id, char).click
-          $logger.info("Just typed #{char}")
-          next
-        # For number and special chars
-        else
-          if letter_keypad == true
-            $driver.find_element(:accessibility_id, 'more').click
-            letter_keypad = false
-          end
-          $driver.find_element(:accessibility_id, char).click
-          $logger.info("Just typed #{char}")
+      try ||= 1
+      # For letters
+      if letter?(char)
+        if letter_keypad == false
+          $driver.find_element(:accessibility_id, 'more').click
+          letter_keypad = true
         end
-      rescue StandardError => e
-        $logger.warn("Error at press_keys_ios: #{e}")
-        sleep(2)
-        retry if (try += 1) < 5
+        $driver.find_element(:accessibility_id, 'shift').click if upcase?(char)
+        $driver.find_element(:accessibility_id, char).click
+        $logger.info("Just typed #{char}")
+        next
+      # For number and special chars
+      else
+        if letter_keypad == true
+          $driver.find_element(:accessibility_id, 'more').click
+          letter_keypad = false
+        end
+        $driver.find_element(:accessibility_id, char).click
+        $logger.info("Just typed #{char}")
       end
+    rescue StandardError => e
+      $logger.warn("Error at press_keys_ios: #{e}")
+      sleep(2)
+      retry if (try += 1) < 5
     end
   end
 
