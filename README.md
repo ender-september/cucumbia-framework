@@ -85,13 +85,13 @@ Test execution profiles (defined in config/cucumber.yml):
 @unstable - scenarios that sometimes fail due to an uncontrolled factor
 
 ### Options
-Path from home dir to a yaml file that is loaded into the $secrets variable. Default is `~/testing-secrets.yaml`  
+Path from home dir to a yaml file that is loaded into the $secrets variable. Default is `~/testing-secrets.yaml`:  
 `SECRETS_PATH=<path to yaml file>`  
   
 Stop executing the feature file if the scenario failures amount to a defined number (useful for CI and fast feedback):  
 `FAILSTOP=number`  
   
-Take screenshot after every step   
+Take screenshot after every step:  
 `AFTER_STEP_SCREENSHOT=true`  
   
 ### See also

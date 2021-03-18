@@ -11,9 +11,8 @@ require 'base64'
 Dir[File.join(__dir__, 'misc', '*.rb')].sort.each { |file| require file }
 
 class MyEnv
-
-  TRUTHY_VALUES = %w(t true yes y 1).freeze
-  FALSEY_VALUES = %w(f false n no 0).freeze
+  TRUTHY_VALUES = %w[t true yes y 1].freeze
+  FALSEY_VALUES = %w[f false n no 0].freeze
 
   def self.true?(value)
     return false if ENV[value].nil?
@@ -82,11 +81,9 @@ class IosWorld
       platform_version = ENV['PLATFORM_VERSION'] || '14.3'
     else
       device_name = `ideviceinfo | grep -i DeviceName`.sub! 'DeviceName: ', ''
-      
-      if device_name == nil
-        raise 'iOS device not found. Check connection... Tip: You can use the command: ideviceinfo'
-      end
-      
+
+      raise 'iOS device not found. Check connection... Tip: You can use the command: ideviceinfo' if device_name.nil?
+
       device_name = device_name.strip
       platform_version = `ideviceinfo | grep -i ProductVersion`.sub! 'ProductVersion: ', ''
       platform_version = /^\d+\.[1-9]\d*/.match(platform_version)
@@ -94,7 +91,7 @@ class IosWorld
 
     $logger.info("Device name: #{device_name}")
     $logger.info("Platform version: #{platform_version}")
-    
+
     MyEnv.append_appium_config_file('deviceName', device_name)
     MyEnv.append_appium_config_file('platformVersion', platform_version)
   end
@@ -111,9 +108,7 @@ class ChromeWorld
       platform: :MAC
     }
 
-    if MyEnv.true?('HEADLESS_BROWSER')
-      capabilities_config[:chromeOptions] = { 'args' => ['headless'] }
-    end
+    capabilities_config[:chromeOptions] = { 'args' => ['headless'] } if MyEnv.true?('HEADLESS_BROWSER')
 
     Selenium::WebDriver::Remote::Capabilities.send(:chrome, capabilities_config)
   end
@@ -167,10 +162,10 @@ $element_path = ElementRegistry.new(element_path_file).element_path_file_hashmap
 
 # Load property files
 $users = YAML.load_file File.join(Dir.pwd, 'features/support/misc/users.yaml')
+$google_sheets = YAML.load_file File.join(Dir.pwd, 'features/support/misc/google_sheet_imports.yaml')
 
-unless ENV['SECRETS_PATH'].nil?
-  $secrets = YAML.load_file File.join('~/', ENV['SECRETS_PATH'])
-elsif File.exist?(File.join('~/', 'testing-secrets.yaml'))
+$secrets = YAML.load_file File.join('~/', ENV['SECRETS_PATH']) unless ENV['SECRETS_PATH'].nil?
+if File.exist?(File.join('~/', 'testing-secrets.yaml'))
   $secrets = YAML.load_file File.join('~/', 'testing-secrets.yaml')
 end
 
