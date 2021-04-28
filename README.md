@@ -9,19 +9,14 @@ Some of the features:
 * User account data structure
 * JavaScript calls for web-based apps
 * Commands on the OS level
-* Get Google Sheet data
+* Google Cloud API integration
+* BrowserStack integration
 * Get Mailtrap e-mails
 * Easily configurable setup with profiles
 * Screenshots for every step or on point of failure (saved in `screenshots` directory)  
 * HTML and JSON reports with screenshots
 * Script to trigger a test run e.g. with Jenkins CI
 * API testing (coming soon)
-
-# Code setup  
-Search and rename the text instances of:  
-`app_abrv` - abriviation of the AUT - all lower case  
-`app_name` - full name of the application - all lower case  
-`app_package_name` - name of the app package  
   
 # Browser setup
 ### Download Selenium server and chromedriver
@@ -47,52 +42,65 @@ For specific version of `chromedriver`, put the file in the appium root director
 4. `brew install ios-webkit-debug-proxy`
 4. `npm install -g ios-deploy`  
 5. Configure the WebDriverAgent:  
-Open appium_root_directory/node_modules/appium-webdriveragent/WebDriverAgent.xcodeproj
-Check "Automatically manage signing" and select the Team.
-In Build Settings tab find Product Bundle Identifier and instead of `com.facebook.WebDriverAgent(...)` put `io.appium.WebDriverAgent(...)`. Do these both for WebDriverAgentLib and WebDriverAgentRunner.  
+- Open appium_root_directory/node_modules/appium/node_modules/appium-webdriveragent/WebDriverAgent.xcodeproj  
+- Check "Automatically manage signing" and select the Team.  
+- In Build Settings tab for WebDriverAgentRunner, find Product Bundle Identifier and instead of `com.facebook.WebDriverAgentRunner` put `com.appium.wda.runner`. Do the same for WebDriverAgentLib: instad of `com.facebook.WebDriverAgentLib` put `com.appium.wda.lib`
 Steps in detail: https://github.com/appium/appium-xcuitest-driver/blob/master/docs/real-device-config.md#basic-manual-configuration  
-Click the play button to build the project. If there is an error mentioning RoutingHTTPServer, run `bash ./Scripts/bootstrap.sh -d` from the directory of WebDriverAgent.xcodeproj. Ignore other errors as they should disapear after a test run.  
-Inside the `appium-webdriveragent` directory run `mkdir -p Resources/WebDriverAgent.bundle`  
+- Click the play button to build the project. If there is an error mentioning RoutingHTTPServer, run `bash ./Scripts/bootstrap.sh -d` from the directory of WebDriverAgent.xcodeproj. Ignore other errors as they should disapear after a test run.  
+- Inside the `appium-webdriveragent` directory run `mkdir -p Resources/WebDriverAgent.bundle`  
   
-### Start an Appium server instance for Android
-``./node_modules/.bin/appium --port 4724 --bootstrap-port 63324 --session-override --chromedriver-executable=`pwd`/chromedriver``  
+If you get an error code 65, it means either the above setup is not correct or try to go on the device: Settings>General>Device Management where you will see the webdriver app which you have you mark as trusted. If the app is removed after the failed test, kill the Appium server before the cleanup!
+  
+### Start an Appium server instance
+`./node_modules/.bin/appium`  
+  
+  Useful flags for parallel execution:  
+  --port -> set different ports for multiple Appium server instances e.g. one for Android and one for iOS. Default port is 4723.  
+  --bootstrap-port -> set different ports that use on device to connect to Appium (Android-only).  
+  --session-override -> in case another driver is used in the same session.  
+  
+# Browser setup
+### Download Selenium server and chromedriver
+`brew install selenium-server-standalone`  
+`brew tap homebrew/cask && brew cask install chromedriver`  
+`brew install geckodriver`  
 
-### Start an Appium server instance for iOS
-`./node_modules/.bin/appium --session-override`  
+### Start Selenium server
+`selenium-server`
 
 # Running tests
   
 Navigate to `cucumber` directory  
   
-Test execution profiles (defined in config/cucumber.yml):  
+Test execution examples:  
 
-* default - run scenarios with @test tag on app_name and chrome:  
+* default - run scenarios with @test tag on browser:  
 `bundle exec cucumber`  
-* run scenarios without @mobile tag on app_name and browser(chrome if not specified):  
-`bundle exec cucumber -p app_abrv-browser`  
-* run scenarios without @mobile tag on app_name and android:  
-`bundle exec cucumber -p app_abrv-android` 
+* run all scenarios on browser:  
+`bundle exec cucumber -p browser` 
+* run all scenarios on android:  
+`bundle exec cucumber -p android` 
+* run the scenario "Login and logout" on iOS with an HTML report generated in the project root:  
+`bundle exec cucumber -p ios -p html_report --name "Login and logout"`   
 * you can add any additional argument to a profile such as:  
-`bundle exec cucumber -p app_abrv-browser BROWSER=firefox --tags @some-tag FAILSTOP=3`   
+`bundle exec cucumber -p ios --tags @some-tag FAILSTOP=3`   
 
 **Tags:**  
-@test - used to quick run or debug a scenario during development.  
-@mobile - mobile specific tests.  
 @browser - browser specific tests.  
+@test - used to quick run or debug a scenario during development.  
 @long - scenarios not limited to a 10 minute execution time.  
-@smoke - check that the critical functionalities are working fine. Executed before detailed functional or regression tests are executed.  
-@login-feature, @shop-feature, etc. - feature tags 
+@smoke - scenarios covering only the critical functionalities. Executed before detailed functional or regression tests are executed.  
+@login-feature, @x-feature, etc. - feature tags 
 @unstable - scenarios that sometimes fail due to an uncontrolled factor
 
-### Options
-Path from home dir to a yaml file that is loaded into the $secrets variable. Default is `~/testing-secrets.yaml`:  
-`SECRETS_PATH=<path to yaml file>`  
-  
+### Options  
 Stop executing the feature file if the scenario failures amount to a defined number (useful for CI and fast feedback):  
-`FAILSTOP=number`  
+`FAILSTOP=<number>`  
   
 Take screenshot after every step:  
 `AFTER_STEP_SCREENSHOT=true`  
+  
+Check out cucumber/config/cucumber.yml for other options!
   
 ### See also
 https://docs.cucumber.io/cucumber/api/

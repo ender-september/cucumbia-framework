@@ -1,17 +1,14 @@
 [appium_lib]
 wait=0.2
 wait_interval=0.1
-server_url="http://127.0.0.1:4723/wd/hub"
 clearSystemFiles=true
 
 [caps]
 automationName="XCUITest"
 platformName="iOS"
-startIWDP=true
-xcodeOrgID="your-OrdID"
+xcodeOrgID="org-id"
 xcodeSigningId="iPhone Developer"
 udid="auto"
-updatedWDABundleId="io.appium.WebDriverAgentRunner"
 newCommandTimeout=0
 webkitResponseTimeout=44000
 wdaConnectionTimeout=44000

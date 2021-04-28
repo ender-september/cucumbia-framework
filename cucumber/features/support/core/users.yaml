@@ -1,0 +1,6 @@
+registered-user:
+  email: 'registered@user.com'
+  name: 'registered'  
+verified-user:
+  email: 'verified@user.com'
+  name: 'verified'

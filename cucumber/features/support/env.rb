@@ -8,8 +8,11 @@ require 'pry'
 require 'securerandom'
 require 'tracer'
 require 'base64'
-Dir[File.join(__dir__, 'misc', '*.rb')].sort.each { |file| require file }
+require 'dotenv'
+require File.join(__dir__, '../step_definition/step_definition_variables.rb')
+Dir[File.join(__dir__, 'core', '**/*.rb')].sort.each { |file| require file }
 
+# Environment and configuration variables
 class MyEnv
   TRUTHY_VALUES = %w[t true yes y 1].freeze
   FALSEY_VALUES = %w[f false n no 0].freeze
@@ -22,17 +25,70 @@ class MyEnv
     raise "Invalid value '#{value}' for boolean casting!"
   end
 
+  def self.project_id
+    ENV['PROJECT_ID']
+  end
+
+  def self.browser?
+    ENV['PLATFORM_NAME'] == 'browser'
+  end
+
+  def self.android?
+    ENV['PLATFORM_NAME'] == 'android'
+  end
+
+  def self.ios?
+    ENV['PLATFORM_NAME'] == 'ios'
+  end
+
   def self.appium_config_file
-    File.join(File.dirname(__FILE__), "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
+    File.join(__dir__, "appium_#{ENV['PLATFORM_NAME']}_caps.txt")
   end
 
   def self.append_appium_config_file(conf, value)
     conf = "#{conf}="
+    # Do not append if the config already exists
     return if File.foreach(MyEnv.appium_config_file).grep(/#{conf}/).any?
 
     File.open(MyEnv.appium_config_file, 'a') do |f|
       f.write "\n#{conf}\"#{value}\""
     end
+  end
+
+  def self.selenium_server_url
+    ENV['SELENIUM_SERVER_URL'] || 'http://127.0.0.1:4444/wd/hub'
+  end
+
+  def self.appium_server_url
+    ENV['APPIUM_SERVER_URL'] || 'http://127.0.0.1:4723/wd/hub'
+    "https://#{ENV['BS_USER']}:#{ENV['BS_KEY']}@hub-cloud.browserstack.com/wd/hub" if MyEnv.true?('BROWSERSTACK')
+  end
+
+  def self.app_build_path
+    uri_path = ENV['APP_BUILD_URL']
+
+    # if uri is a web URL
+    return uri_path if uri_path.include?('://')
+
+    dir_path = File.join(Dir.pwd, uri_path) if uri_path == 'resources'
+    dir_path = File.join(ENV['HOME'], uri_path) unless uri_path == 'resources'
+
+    extension = ENV['PLATFORM_NAME'] == 'ios' ? 'ipa' : 'apk'
+    extension = 'app' if MyEnv.true?('IOS_SIMULATOR')
+
+    Dir["#{dir_path}/*.#{extension}"].first
+  end
+
+  def self.browserstack_caps(caps_hash)
+    caps_hash[:caps]['browserstack.key'] = ENV['BS_KEY']
+    caps_hash[:caps]['device'] = ENV['BS_DEVICE']
+    caps_hash[:caps]['deviceName'] = ENV['BS_DEVICE']
+    caps_hash[:caps]['os_version'] = ENV['BS_OS_VERSION']
+    caps_hash[:caps]['project'] = ENV['BS_PROJECT']
+    caps_hash[:caps]['build'] = ENV['BS_BUILD']
+    caps_hash[:caps]['name'] = ENV['BS_NAME']
+    caps_hash[:caps]['browserstack.user'] = ENV['BS_USER']
+    caps_hash
   end
 end
 
@@ -42,22 +98,20 @@ class AndroidWorld
 
   def caps
     puts 'Running on Android...'
-    Appium.load_appium_txt file: MyEnv.appium_config_file
-  end
+    caps_hash = Appium.load_appium_txt file: MyEnv.appium_config_file
 
-  def install_app
-    app_build_path(ENV['APP_BUILD_URL'])
-    add_install_app_config
-  end
+    caps_hash[:appium_lib][:server_url] = MyEnv.appium_server_url
+    caps_hash[:caps][:appPackage] = ENV['APP_PACKAGE_NAME']
+    caps_hash[:caps][:appActivity] = ENV['APP_ACTIVITY']
 
-  def app_bundle
-    MyEnv.append_appium_config_file('appPackage', ENV['APP_PACKAGE_NAME'])
-    MyEnv.append_appium_config_file('appActivity', "#{ENV['APP_PACKAGE_NAME']}.MainActivity")
-  end
+    caps_hash[:caps][:app] = MyEnv.app_build_path unless ENV['APP_BUILD_URL'].nil?
+    caps_hash[:caps][:fullReset] = ENV['FULL_RESET'] unless ENV['FULL_RESET'].nil?
+    caps_hash[:caps][:unlockType] = ENV['UNLOCK_TYPE'] unless ENV['UNLOCK_TYPE'].nil?
+    caps_hash[:caps][:unlockKey] = ENV['UNLOCK_KEY'] unless ENV['UNLOCK_KEY'].nil?
 
-  def unlock_device(unlock_type, unlock_key)
-    MyEnv.append_appium_config_file('unlockType', unlock_type)
-    MyEnv.append_appium_config_file('unlockKey', unlock_key)
+    caps_hash = MyEnv.browserstack_caps(caps_hash) if MyEnv.true?('BROWSERSTACK')
+
+    caps_hash
   end
 end
 
@@ -67,12 +121,22 @@ class IosWorld
 
   def caps
     puts 'Running on iOS...'
-    Appium.load_appium_txt file: MyEnv.appium_config_file
-  end
+    caps_hash = Appium.load_appium_txt file: MyEnv.appium_config_file
 
-  def install_app
-    app_build_path(ENV['APP_BUILD_URL'])
-    add_install_app_config
+    caps_hash[:appium_lib][:server_url] = MyEnv.appium_server_url
+    caps_hash[:caps][:bundleId] = ENV['APP_PACKAGE_NAME']
+
+    caps_hash[:caps][:app] = MyEnv.app_build_path unless ENV['APP_BUILD_URL'].nil?
+    caps_hash[:caps][:fullReset] = ENV['FULL_RESET'] unless ENV['FULL_RESET'].nil?
+
+    unless MyEnv.true?('BROWSERSTACK')
+      caps_hash[:caps][:startIWDP] = 'true'
+      caps_hash[:caps][:updatedWDABundleId] = 'com.appium.wda.runner'
+    end
+    binding.pry
+    caps_hash = MyEnv.browserstack_caps(caps_hash) if MyEnv.true?('BROWSERSTACK')
+
+    caps_hash
   end
 
   def ios_device_specific_config
@@ -95,10 +159,6 @@ class IosWorld
     MyEnv.append_appium_config_file('deviceName', device_name)
     MyEnv.append_appium_config_file('platformVersion', platform_version)
   end
-
-  def app_bundle
-    MyEnv.append_appium_config_file('bundleId', ENV['APP_PACKAGE_NAME'])
-  end
 end
 
 # Chrome specific configurations
@@ -112,10 +172,6 @@ class ChromeWorld
 
     Selenium::WebDriver::Remote::Capabilities.send(:chrome, capabilities_config)
   end
-
-  def server_url
-    ENV['SELENIUM_HUB_URL'] || 'http://127.0.0.1:4444/wd/hub'
-  end
 end
 
 # Firefox specific configurations
@@ -125,10 +181,6 @@ class FirefoxWorld
       platform: :MAC
     }
     Selenium::WebDriver::Remote::Capabilities.send(:firefox, capabilities_config)
-  end
-
-  def server_url
-    ENV['SELENIUM_HUB_URL'] || 'http://127.0.0.1:4444/wd/hub'
   end
 end
 
@@ -140,15 +192,14 @@ class SafariWorld
     }
     Selenium::WebDriver::Remote::Capabilities.send(:safari, capabilities_config)
   end
-
-  def server_url
-    ENV['SELENIUM_HUB_URL'] || 'http://127.0.0.1:4444/wd/hub'
-  end
 end
 
 ################
 ### Script start
 ################
+
+# Load environment variables from cucumber/.env
+Dotenv.load
 
 # Initialize the logger and create log file
 $logger = LoggerBuilder.new('logfile.log')
@@ -157,21 +208,17 @@ $logger = LoggerBuilder.new('logfile.log')
 Dir.mkdir('screenshots') unless Dir.exist?('screenshots')
 
 ### App specific setup
-element_path_file = File.join(Dir.pwd, 'features/support/misc/element_path.yaml')
+element_path_file = File.join(__dir__, "/core/element_path_#{ENV['PLATFORM_NAME']}.yaml")
 $element_path = ElementRegistry.new(element_path_file).element_path_file_hashmap
 
 # Load property files
-$users = YAML.load_file File.join(Dir.pwd, 'features/support/misc/users.yaml')
-$google_sheets = YAML.load_file File.join(Dir.pwd, 'features/support/misc/google_sheet_imports.yaml')
+$users = YAML.load_file File.join(__dir__, '/core/users.yaml')
 
-$secrets = YAML.load_file File.join('~/', ENV['SECRETS_PATH']) unless ENV['SECRETS_PATH'].nil?
-if File.exist?(File.join('~/', 'testing-secrets.yaml'))
-  $secrets = YAML.load_file File.join('~/', 'testing-secrets.yaml')
-end
+# Mobile environment setup
+mobile_world = ENV['PLATFORM_NAME'] == 'ios' ? IosWorld : AndroidWorld
+World { mobile_world.new }
 
-### Platform specific setup
-if ENV['PLATFORM_NAME'] == 'browser'
-
+unless ENV['BROWSER_TYPE'].nil?
   # Browser environment setup
   browser_world = ENV['BROWSER_TYPE']
 
@@ -189,20 +236,14 @@ if ENV['PLATFORM_NAME'] == 'browser'
     puts 'Browser not defined, using the default...'
     browser_world = ChromeWorld
   end
-
   World { browser_world.new }
-
-else
-  # Mobile environment setup
-
-  mobile_world = ENV['PLATFORM_NAME'] == 'ios' ? IosWorld : AndroidWorld
-  World { mobile_world.new }
 end
 
 # Add methods from modules to World
 World Helper
 World OsLevelCommand
 World StepDefenitionVariables
-World CommonComponents
 World Account
-World JSCheats
+World MobileHandler
+World Screenshoter
+World Waiter

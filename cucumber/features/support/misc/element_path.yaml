@@ -1,5 +1,0 @@
-# Welcome screen
-login-logo: 'login-logo'
-login-email-input : 'admin_user_email'
-login-password-input: 'admin_user_password'
-login-submit-button: 'btn-submit'

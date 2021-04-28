@@ -26,5 +26,6 @@ class LoggerBuilder
 
   private
 
-  attr_accessor :file_logger, :stdout_logger
+  attr_accessor :file_logger
+  attr_accessor :stdout_logger
 end

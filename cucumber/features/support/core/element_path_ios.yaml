@@ -1,0 +1,8 @@
+# Welcome page
+login-button: 'Log in'
+
+# Login page
+login-email-input: 'login_input'
+
+# Common
+back-button: 'Back'

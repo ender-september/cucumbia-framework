@@ -1,12 +1,11 @@
 [appium_lib]
-automationName="Appium"
 wait=0.2
 wait_interval=0.1
-server_url="http://127.0.0.1:4724/wd/hub"
 clearSystemFiles=true
 
 [caps]
+automationName="UiAutomator2"
 platformName="Android"
-deviceName="Huawei P8 Lite"
+deviceName="All devices"
 newCommandTimeout=0
 adbExecTimeout=50000

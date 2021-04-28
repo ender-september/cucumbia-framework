@@ -1,6 +1,5 @@
 # Hooks
 
-start_mobile_setup = nil
 fail_shot_taken = nil
 scenario_fails_number = nil
 
@@ -10,43 +9,21 @@ Before do
   $logger.info("\n ==================== NEXT SCENARIO ====================")
   $logger.info('Started: General Before block...')
 
-  if browser?
-    $driver = Selenium::WebDriver.for(:remote, url: server_url, desired_capabilities: caps)
-    $driver.switch_to.window($driver.window_handles.last)
-    $driver.manage.delete_all_cookies
+  if MyEnv.browser?
+    $browser = Selenium::WebDriver.for(:remote, url: MyEnv.selenium_server_url, desired_capabilities: caps)
+    $browser.switch_to.window($browser.window_handles.last)
+    $browser.manage.delete_all_cookies
+    $browser.manage.window.maximize
+  end
 
-    # ChromeDriver has bug with maximizing
-    $driver.manage.window.maximize unless ENV['BROWSER_TYPE'].nil? || ENV['BROWSER_TYPE'] == 'chrome'
-    try_times(2, method(:open_url), ENV['BROWSER_URL'])
+  if MyEnv.android? || MyEnv.ios?
+    ios_device_specific_config if !MyEnv.true?('BROWSERSTACK') && (ENV['PLATFORM_NAME'] == 'ios')
+    uninstall_app if !ENV['APP_BUILD_URL'].nil? && app_installed?
 
-  else
-    # Mobile setup
-    start_mobile_setup = true if start_mobile_setup.nil?
-    if start_mobile_setup == true
-      app_bundle
-      ios_device_specific_config if ENV['PLATFORM_NAME'] == 'ios'
-      install_app unless ENV['APP_BUILD_URL'].nil?
-      unlock_device('pin', ENV['PIN']) unless ENV['PIN'].nil?
-      start_mobile_setup = false unless MyEnv.true?('FULL_RESET')
+    Appium::Driver.new(caps, true)
+    Appium.promote_appium_methods self.class
 
-      Appium::Driver.new caps
-      Appium.promote_appium_methods self.class
-    end
-
-    $driver.start_driver
-
-    # If iOS spams with updates and other notification, try to close the popups
-    if ios?
-      close_popup_buttons = ['Cancel', 'Close', 'Later', 'Don\'t Allow', 'Remind Me Later']
-
-      close_popup_buttons.each do |x|
-        $driver.find_element(:id, x).click
-      rescue StandardError
-      ensure
-        next
-      end
-    end
-    enter_webview
+    start_driver
   end
 
   self.flow = Flow.new($driver)
@@ -57,9 +34,9 @@ After do |scenario|
   $logger.info('Started: General After block...')
   if scenario.failed?
     scenario_fails_number += 1
-    unless $driver.nil?
+    unless $driver.driver.nil?
       fail_shot_taken = take_fail_shot unless fail_shot_taken == true
-      try_close_ios_native_popups if ios?
+      try_close_ios_native_popups if MyEnv.ios?
       quit_driver
     end
     Cucumber.wants_to_quit = true if !ENV['FAILSTOP'].nil? && (scenario_fails_number >= ENV['FAILSTOP'].to_i)
@@ -70,44 +47,19 @@ After do |scenario|
 end
 
 Around('not @long', 'not @test') do |scenario, block|
-  # Scenario stops with timeout execption if execution takes more than stated seconds.
-  # Timeout exception by default does not trigger scenario.fail and does not finish with executing the After hook
-
-  if ios?
+  # Scenario stops with a timeout execption if execution takes more than the stated seconds.
+  # Timeout exception by default does not trigger scenario.fail and does not execute the After hook
+  Timeout.timeout(600) do
     block.call
-  else
-    Timeout.timeout(600) do
-      block.call
+  rescue Selenium::WebDriver::Error::TimeoutError => e
+    unless $driver.driver.nil?
+      fail_shot_taken = take_fail_shot unless fail_shot_taken == true
+      quit_driver
     end
+    scenario.fail(e)
   end
-rescue Selenium::WebDriver::Error::TimeoutError => e
-  unless $driver.nil?
-    fail_shot_taken = take_fail_shot unless fail_shot_taken == true
-    quit_driver
-  end
-  scenario.fail(e)
 end
 
 AfterStep do
   after_step_screenshot if ENV['AFTER_STEP_SCREENSHOT']
-end
-
-Before('not @test', '@backoffice') do
-  $logger.info 'Started: Before backoffice setup...'
-
-  try_times(2, method(:open_url), ENV['BACKOFFICE_URL'])
-
-  self.backoffice_flow = BackofficePages.new($driver)
-  backoffice_pages.log_in
-
-  # Do something in the backoffice
-
-  $logger.info 'Finished: Before backoffice setup...'
-  open_url(ENV['BROWSER_URL']) if browser?
-end
-
-do_something = false
-Before('not @test', 'not @login-feature') do
-  flow_successful = nil
-  do_something = true if flow_successful == true
 end

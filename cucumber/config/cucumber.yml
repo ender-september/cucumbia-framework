@@ -1,32 +1,63 @@
 ### Profiles
-default: --tags @test --tags 'not @skip' PLATFORM_NAME=browser BROWSER_URL=http://127.0.0.1:9000
 
-# app_name
-app_abrv_browser: --tags 'not @mobile' --tags 'not @skip' PLATFORM_NAME=browser
-app_abrv_android: --tags 'not @browser' --tags 'not @skip' PLATFORM_NAME=android APP_PACKAGE_NAME=app_package_name
-app_abrv_ios: --tags 'not @browser' --tags 'not @skip' PLATFORM_NAME=ios APP_PACKAGE_NAME=app_package_name
+default:
+  --tags @test
+  -p ios
+  APP_BUILD_URL=resources
+
+android:
+  --tags 'not @skip' --tags 'not @ios'
+  PLATFORM_NAME=android 
+  APP_PACKAGE_NAME=
+  APP_ACTIVITY=
+
+ios:
+  --tags 'not @skip' --tags 'not @android'
+  PLATFORM_NAME=ios 
+  APP_PACKAGE_NAME=
 
 # Reports
 html_report: --format pretty --format html --out=testing_report.html
 json_report: --format pretty --format json --out=testing_report.json
 
-# Options
+### The following variables can be added to a profile or at cucumber/.env:
 
-# The following variables can be added in a profile or a Jenkins project: Configuration->Build->Command
-# PLATFORM_NAME=browser
-# BROWSER_TYPE=chrome
-# HEADLESS_BROWSER=true -> Default is false
-# NATIVE_APP=true -> AUT is a native app
+### General:
+# PROJECT_ID
+# TEST_EMAIL
+# TEST_PASSWORD
+
+### Mobile:  
+# PLATFORM_NAME=android
 # IOS_SIMULATOR=true -> Run with a simulator
 # PLATFORM_VERSION -> Can be defined when using a simulator. Default is 14.3
-# IFRAME_APP = true -> if app is based on iframes, id of iframe should be set in element_path.yaml
-# SELENIUM_HUB_URL=http://some-remote-server.com:4444 -> Selenium server instance. Default is localhost.
-# BROWSER_URL=http://example.com/browser/index.html -> Client instance. Default is localhost.
-# BACKOFFICE_URL=http://example-backoffice.com/backoffice -> Default is staging
-# APP_BUILD_URL=http://example.com/app-builds/app_name.apk -> Path to the build file. It can have the value of a:
+# APP_BUILD_URL=http://example.com/app-builds/app.apk -> Path to the build file. It can have the value of a:
 #   1) web URL, 
 #   2) path from the Home dir '~/',
 #   3) "resources" - gets the build from the resources directory in the root directory of the testing project. 
 #   Commiting the build is unadvisable.
-# FULL_RESET=true -> 1) writes full_reset to the caps file and 2) reruns appium setup before every scenario
-# PIN=123456
+# APPIUM_SERVER_URL -> if undefined, it is either localhost or targeting BrowserStack's appium server
+# FULL_RESET=true -> sets the full_reset capability
+# UNLOCK_TYPE=pin -> ['pin', 'password', 'pattern', 'fingerprint'] (only supported for Android)  
+# UNLOCK_KEY=123456
+
+### BrowserStack:
+# BROWSERSTACK -> true or false (default)
+# BS_USER
+# BS_KEY
+# BS_DEVICE
+# BS_OS_VERSION
+# BS_PROJECT
+# BS_BUILD
+# BS_NAME
+
+### Browser:
+# BROWSER_TYPE=[firefox, safari, chrome]
+# HEADLESS_BROWSER=true -> Default is false
+# SELENIUM_SERVER_URL=http://some-remote-server.com:4444 -> Selenium server instance. Default is localhost.
+
+### Google cloud:
+# GOOGLE_CLIENT_ID -> OAuth2 authentication client_id
+# GOOGLE_CLIENT_SECRET -> OAuth2 authentication client_secret
+# GOOGLE_API_TOKEN -> value from the generated google_api_token.yml after providing the authentication code
+# GOOGLE_API_KEY -> In case of API key authentication

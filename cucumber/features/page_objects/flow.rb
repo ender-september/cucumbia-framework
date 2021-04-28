@@ -1,8 +1,6 @@
 # Logic layer for tests
 class Flow
   include Helper
-  include JSCheats
-
   attr_accessor :logged_users_email, :logged_users_name, :login_times
 
   def initialize(driver)
